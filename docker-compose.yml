@@ -1,0 +1,23 @@
+version: '2.1'
+
+services:
+  mongo:
+    image: mongo
+    #build: .
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - ./data/mongodb:/data/db
+    # ports:
+    #   - 27017:27017
+
+  yandex-dialogs-products-list:
+    image: popstas/yandex-dialogs-products-list:v0.1.0
+    # build: .
+    environment:
+      NODE_ENV: production
+    volumes:
+      - $PWD/src/config.js:/app/src/config.js
+    ports:
+      - 2757:3002

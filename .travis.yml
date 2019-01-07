@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+  - lts/*
+before_script:
+  - cp src/config.sample.js src/config.js
+  - npm install
+script:
+  - npm test

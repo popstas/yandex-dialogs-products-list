@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const { Alice, Reply, Stage, Scene } = require('yandex-dialogs-sdk');
 const middlewares = require('./middlewares');
 const matchers = require('./matchers');
+const entities = require('./entities');
 const config = require('./config');
 const commands = require('./commands/index');
 const utils = require('./utils');
@@ -40,6 +41,9 @@ class YandexDialogsProductsList {
     alice.use(middlewares.replySimple());
     alice.use(middlewares.replyRandom());
     alice.use(middlewares.logMessage());
+
+    // добавляют факты в ctx.entities
+    alice.use(entities.date());
 
     // изменяют ctx во время запроса
     alice.use(middlewares.store());

@@ -44,6 +44,7 @@ class YandexDialogsProductsList {
 
     // добавляют факты в ctx.entities
     alice.use(entities.date());
+    alice.use(entities.tomita());
 
     // изменяют ctx во время запроса
     alice.use(middlewares.store());

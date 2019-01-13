@@ -3,4 +3,8 @@ loki.db
 node_modules
 config.js
 .env
-.serverless
+
+# tomita
+main.cxx
+main.bin
+PrettyOutput.html

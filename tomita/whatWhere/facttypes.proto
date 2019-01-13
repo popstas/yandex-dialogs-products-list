@@ -1,0 +1,30 @@
+import "base.proto";           // описание protobuf-типов
+import "facttypes_base.proto"; // описание protobuf-типа NFactType.TFact
+
+message Date: NFactType.TFact 
+{
+  optional string DayOfWeek = 1;
+  optional string Day = 2;
+  optional string Month = 3;
+  optional string Year = 4;
+}
+
+message WhatWhere: NFactType.TFact 
+{
+  optional string What = 1;
+  optional string Where = 2;
+  optional string When = 3;
+  optional string Who = 4;
+  optional string Action = 5;
+}
+
+message Test: NFactType.TFact
+{
+  optional string VV = 1;
+  optional string PP = 2;
+  optional string ActionObject = 3;
+  optional string NounList = 4;
+  optional string Chuckcha = 5;
+  optional string NN = 6;
+  optional string Date = 7;
+}

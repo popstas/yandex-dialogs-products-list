@@ -1,5 +1,3 @@
-const storage = require('../storage');
-
 const longPauseDays = 3;
 const maxVisitPauseMins = 10;
 
@@ -9,7 +7,8 @@ module.exports = () => (ctx, next) => {
   ctx.user.state.visitor = ctx.user.state.visitor || {
     visits: 0, // кол-во визитов (визит - группа сообщений в пределах 10 минут)
     lastMessageDate: 0, // время последнего сообщения навыку
-    lastMessageLong: false // давно не был в навыке
+    lastMessageLong: false, // давно не был в навыке
+    lastVisitDate: 0 // время последнего визита
   };
 
   // визит
@@ -26,6 +25,7 @@ module.exports = () => (ctx, next) => {
 
   if (isNewVisit) {
     ctx.user.state.visitor.visits++;
+    ctx.user.state.visitor.lastVisitDate = ctx.user.state.visitor.lastMessageDate;
     if (ctx.message != 'ping') {
       console.log('');
       ctx.logMessage(

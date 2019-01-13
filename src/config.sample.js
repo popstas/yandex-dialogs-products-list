@@ -7,5 +7,7 @@ module.exports = {
   DB_NAME: process.env.DB_NAME || 'yandex-dialogs-products-list',
   DB_USER: process.env.DB_USER || 'yandex-dialogs-products-list',
   DB_PASSWORD: process.env.DB_PASSWORD || 'mypassword',
-  API_ENDPOINT: process.env.API_ENDPOINT || '/'
+  API_ENDPOINT: process.env.API_ENDPOINT || '/',
+  YAMETRIKA_ID: process.env.YAMETRIKA_ID || '',
+  CHATBASE_KEY: process.env.CHATBASE_KEY || ''
 };

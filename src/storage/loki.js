@@ -88,21 +88,21 @@ class LokiDriver extends BaseDriver {
     userData.data.insert(demoData);
   }
 
-  storeAnswer(userData, question, answer) {
-    const found = userData.data.data.find(item => item.questions.indexOf(question) != -1);
+  storeAnswer(userData, product, answer) {
+    const found = userData.data.data.find(item => item.product == product);
     if (found) {
       found.answer = answer;
       userData.data.update(found);
     } else {
       userData.data.insert({
-        questions: [question],
-        answer: answer
+        product: product,
+        expire: answer
       });
     }
   }
 
-  async removeQuestion(userData, question) {
-    const found = userData.data.data.find(item => item.questions.indexOf(question) != -1);
+  async removeProduct(userData, product) {
+    const found = userData.data.data.find(item => item.product == product);
     if (found) {
       userData.data.remove(found);
       return true;

@@ -8,6 +8,14 @@ const { Reply } = require('yandex-dialogs-sdk');
 const STAGE_IDLE = 'STAGE_IDLE';
 const STAGE_WAIT_FOR_ANSWER = 'STAGE_WAIT_FOR_ANSWER';
 
+var normalizedPath = require('path').join(__dirname, '.');
+require('fs')
+  .readdirSync(normalizedPath)
+  .forEach(function(file) {
+    const moduleName = file.split('.')[0];
+    if (file !== 'index.js') exports[moduleName] = require('./' + file);
+  });
+
 // процесс ответа на вопрос, кажется, это называется fullfillment
 // https://github.com/dialogflow/dialogflow-fulfillment-nodejs
 // process, action
@@ -93,20 +101,6 @@ const processDelete = async (ctx, question) => {
     return ctx.reply('При удалении что-то пошло не так...');
   }
 
-  // tour step 3
-  if (ctx.user.state.tourStep === 'forget') {
-    ctx.user.state.tourStep = '';
-    // storage.setState(ctx.userData, ctx.user.state);
-    return await ctx.replySimple(
-      [
-        'Прекрасно, теперь вы умеете пользоваться сценарием "список покупок".',
-        'Чтобы узнать, как ещё можно использовать вторую память, скажите "примеры".',
-        'Чтобы узнать обо всех командах, скажите "помощь".'
-      ],
-      ['примеры', 'помощь', 'первая помощь']
-    );
-  }
-
   return ctx.reply('Забыла, что ' + question);
 };
 
@@ -136,7 +130,7 @@ module.exports.any = async ctx => {
     'Похоже, мы друг друга не понимаем, скажите "примеры"'
   ];
   const randomKey = Math.floor(Math.random() * messages.length);
-  return ctx.replySimple(messages[randomKey], ['помощь', 'примеры']);
+  return ctx.reply(messages[randomKey], ['помощь', 'примеры']);
 };
 
 // команда "что ..."
@@ -175,10 +169,7 @@ module.exports.what = async ctx => {
 
     return ctx.reply(msg);
   } else {
-    return ctx.replySimple(
-      'Я не знаю.',
-      ['что ты знаешь']
-    );
+    return ctx.reply('Я не знаю.', ['что ты знаешь']);
   }
 };
 
@@ -222,26 +213,6 @@ module.exports.when = ctx => {
   }
 };
 
-// команда "команды"
-module.exports.commands = ctx => {
-  ctx.logMessage(`> ${ctx.message} (commands)`);
-  const buttons = [
-    'запомни в чем-то находится что-то',
-    'удали последнее',
-    'отмена',
-    'забудь всё',
-    'запомни',
-    'пока'
-  ];
-  if (process.env.NODE_ENV != 'production') {
-    buttons.push('демо данные');
-    buttons.push('забудь все вообще');
-    buttons.push('приветствие');
-  }
-
-  return ctx.replySimple(['Вот примеры разных команд:', buttons.join('\n')], buttons);
-};
-
 // команда "запомни ${question} находится ${answer}"
 module.exports.remember = async ctx => {
   return processRemember(ctx, ctx.message);
@@ -280,7 +251,6 @@ module.exports.clearDataAll = async ctx => {
   await storage.clearData(ctx.userData);
   ctx.user.state.visitor = { visits: 1 };
   ctx.user.state.visit = { messages: 0 };
-  ctx.user.state.tourStep = '';
   ctx = await resetState(ctx);
   return ctx.reply('Вообще всё забыла...');
 };
@@ -297,19 +267,19 @@ module.exports.demoData = async ctx => {
 module.exports.known = async ctx => {
   ctx.logMessage(`> ${ctx.message} (known)`);
   // buttons
-  let questions = ctx.user.data.map(item => item.questions[0]);
-  const buttons = questions.map(question => 'что ' + question);
+  let products = ctx.user.data.map(item => item.product);
+  const buttons = products.map(product => 'когда закончится ' + product);
 
   // text
   let text = [];
-  if (questions.length > 0) {
-    text.push('У меня есть информация об этих объектах:\n');
-    text.push(questions.join('\n'));
+  if (products.length > 0) {
+    text.push('В холодильнике лежат:\n');
+    text.push(products.join('\n'));
   } else {
     text.push('Я еще ничего не знаю, сначала расскажите мне, что где находится.');
   }
 
-  return ctx.replySimple(text, buttons);
+  return ctx.reply(text, buttons);
 };
 
 // ответ на непонятное
@@ -368,44 +338,4 @@ module.exports.inAnswerProcess = async ctx => {
     // ctx.session.set('__currentScene', null);
   }
   return await ctx.reply(reply);
-};
-
-// команда подтверждения
-module.exports.confirm = async ctx => {
-  ctx.logMessage(`> ${ctx.message} (confirm)`);
-  const confirm = ctx.session.get('confirm');
-  if (confirm) {
-    let cmd;
-    const options = {
-      ...confirm.options,
-      ...{
-        yesMatcher: matchers.yes(),
-        noMatcher: matchers.no(),
-        anyCommand: ctx =>
-          ctx.replyRandom(
-            [
-              'Скажите "да" или "нет"',
-              'Не отстану, пока не получу ответ',
-              'А ответ-то какой?',
-              confirm.reply
-            ],
-            ['да', 'нет']
-          )
-      }
-    };
-    if (ctx.message.match(/^повтори/)) {
-      return ctx.replySimple(confirm.reply, ['да', 'нет']);
-    } else if (options.yesMatcher(ctx)) {
-      cmd = confirm.yesCommand;
-    } else if (options.noMatcher(ctx)) {
-      cmd = confirm.noCommand;
-    }
-
-    if (cmd) {
-      ctx.session.set('confirm', null);
-      return await cmd(ctx);
-    }
-
-    return options.anyCommand(ctx);
-  }
 };

@@ -42,3 +42,47 @@
 - Местами есть вариативность ответов
 - Умеет отвечать на типичные фразы: приветствие, благодарность, оскорбление
 - Пытается понять, что пользователь сказал неправильно и подсказать
+
+## Схема навыка
+Попробовал перед написанием кода сначала описать в yaml основные моменты:
+
+``` yaml
+Entities:
+  date: дата окончания
+  product: [молоко, сыр]
+
+  ### Сущности-команды (распознаются)
+  remove: [кончилось, прокисло, съел]
+  whenEnd: [когда]
+  willEnd: [закончится]
+  add: [купил, добавь]
+
+### Схема интентов навыка:
+Intents:
+  addProduct:
+    example: купил молоко вчерашнее
+    whenEntities: ['product', 'date']
+    answer: "${product} закончится ${date}, запомнила"
+
+  removeProduct:
+    example: молоко кончилось
+    whenEntities: ['product', 'remove']
+    answer: "${product} закончится ${date}, запомнила"
+
+  whenEnd:
+    example: когда закончится молоко
+    whenEntities: ['whenEnd', 'product']
+    answer: "${product} закончится послезавтра"
+
+  whatWhen:
+    example: что закончится в ближайшие 3 дня
+    whenEntities: ['what', 'willEnd', 'date']
+    answer: "молоко закончится послезавтра"
+
+  whatEnded:
+    example: что закончилось
+    whenEntities: ['whenEnd', 'product']
+    whenNotEntities: ['date']
+    answer: "сыр закончился позавчера"
+
+```
